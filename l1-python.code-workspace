@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../../../Python/l1-python"
+		},
+		{
+			"name": "S2-python",
+			"path": "../S2-python"
+		},
+		{
+			"name": "Mastermind",
+			"path": "."
+		}
+	],
+	"settings": {}
+}

@@ -1,3 +1,5 @@
 # Mastermind
-Nous allons créé un mastermind en créant 2 fonctions. 
-Une fonction sera dédié
+Nom du projet: mastermind 
+Groupe de TD: BI 3
+Groupe projet: ?
+Membres du groupe Projet: THOMAS Romain, GRAND Sébastien, Thérésa, David
