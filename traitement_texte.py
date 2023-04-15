@@ -16,14 +16,14 @@ def affichage_cercle():
     couleur_cercle = 0 #prend la couleurs de la tentative
     #variable cercle
     coor_horiz_pt1 = 10
-    coor_vert_pt1 = 10+60*(nbr_tentative)
-    coor_horiz_pt2 = 50
-    coor_vert_pt2 = 50+60*(nbr_tentative)
+    coor_vert_pt1 = 490-50*(nbr_tentative)
+    coor_horiz_pt2 = 40
+    coor_vert_pt2 = 460-50*(nbr_tentative)
     for i in range (len(tentative)) :
         plateau.create_oval(coor_horiz_pt1, coor_vert_pt1,\
                             coor_horiz_pt2, coor_vert_pt2, fill=tentative[couleur_cercle])
-        coor_horiz_pt1 += 50
-        coor_horiz_pt2 += 50
+        coor_horiz_pt1 += 40
+        coor_horiz_pt2 += 40
         couleur_cercle += 1
 
 # fonction qui interprète chaques tentatives
@@ -36,55 +36,67 @@ def verification():
             canvas.grid()
             text = canvas.create_text(150, 50, text="YOU WIN <3 !!!")
         else :
-            # ici, il faudra créer les conditions pour lesquelles
+            # ici, on a crée les conditions pour lesquelles
             # on va afficher les cercles qui donnent des indices 
             nb_bienplace= 0
             nb_malplace= 0
             for i in range(taille_code):
-                if combinaison[i]==tentative[i]:
-                    nb_bienplace+=1
-                    tentative[i]="x"
+                if combinaison[i]==tentative[i]:# on verifie que la couleur est bien placé
+                    nb_bienplace+=1 # on compte le nombre de couleur bien placé
+                    tentative[i]="x" # on modifie couleur bien placé pour pas qu'elle soit compté plusieurs fois
                 else:
                     for j in range(len(tentative)):
-                        if combinaison[i]==tentative[j]:
-                            nb_malplace+=1
-                            tentative[j]="x"
-                            break
+                        if combinaison[i]==tentative[j]:# on regarde si les couleurs sont mal placé
+                            nb_malplace+=1 # on compte le nombre de couleur mal placé
+                            tentative[j]="x" # on modifie couleur mal placé pour pas qu'elle soit compté plusieurs fois
+                            break # on sort de la boucle une fois qu'une couleur mal placé ait été compté
+                                  # pour une couleur du code
+            
+            cercle_de_vérif(nb_bienplace, nb_malplace)
+
+            if nbr_tentative==10:
+                fenetre_defaite = tk.Tk()
+                canvas = tk.Canvas(fenetre_defaite, width=300, height=200)
+                canvas.grid()
+                text = canvas.create_text(150, 50, text="YOU LOOSE :(")
+
             print(nb_bienplace)
             print(nb_malplace)
                             
-
-
             tentative = []
-    else :
-        fenetre_defaite = tk.Tk()
-        canvas = tk.Canvas(fenetre_defaite, width=300, height=200)
-        canvas.grid()
-        text = canvas.create_text(150, 50, text="YOU LOOSE :(")
+    
 
 # fonction qui affiche les cercles qui donnent des indices
-# def cercle_de_vérif():
-#     coor_horiz_pt1 = 10
-#     coor_vert_pt1 = 10+60*(nbr_tentative-1)
-#     coor_horiz_pt2 = 50
-#     coor_vert_pt2 = 50+60*(nbr_tentative-1)
-#     for i in range (len(tentative)) :
-#         canvas.create_oval(coor_horiz_pt1, coor_vert_pt1, coor_horiz_pt2, coor_vert_pt2, fill=tentative[couleur_cercle])
-#         coor_horiz_pt1 += 50
-#         coor_horiz_pt2 += 50
-#         couleur_cercle += 1
-#         canvas.grid()
+def cercle_de_vérif(a,b):
     
+    coor_horiz_pt1 = 180
+    coor_vert_pt1 = 467.5-50*(nbr_tentative-1)
+    coor_horiz_pt2 = 195
+    coor_vert_pt2 = 482.5-50*(nbr_tentative-1)
+    for i in range (a):
+        plateau.create_oval(coor_horiz_pt1, coor_vert_pt1,\
+                            coor_horiz_pt2, coor_vert_pt2, fill="red")
+        coor_horiz_pt1 += 30
+        coor_horiz_pt2 += 30
 
+    coor_horiz_pt1 = 180+30*a
+    coor_vert_pt1 = 467.5-50*(nbr_tentative-1)
+    coor_horiz_pt2 = 195+30*a
+    coor_vert_pt2 = 482.5-50*(nbr_tentative-1)
+    for i in range (b):
+        plateau.create_oval(coor_horiz_pt1, coor_vert_pt1,\
+                            coor_horiz_pt2, coor_vert_pt2, fill="white")
+        coor_horiz_pt1 += 30
+        coor_horiz_pt2 += 30
 
-def tentative_joueur():
+# def tentative_joueur():
     
     
-    global nbr_tentative
-    nbr_tentative +=1
-    print(tentative)
-    affichage_cercle()
-    verification()
+#     global nbr_tentative
+#     nbr_tentative +=1
+#     print(tentative)
+#     affichage_cercle()
+#     verification()
 
 def clic_bouton(color):
     tentative.append(color)
@@ -133,14 +145,14 @@ def joueur2_utilise():
     for i in range (0,4) :
         combinaison.append(input("choisir une couleur (en anglais)"))
     print(combinaison)
-    tentative_joueur()
+    #tentative_joueur()
 
 
 # programme principal
 
 root = tk.Tk()# création de la fenêtre dans laquelle nous jouerons au "mastermind"
 root.title("Mastermind")# titre donné à la fenêtre
-root.geometry("400x650")
+root.geometry("400x600")
 plateau = tk.Canvas(root,background= "salmon4",width = 300, height = 550)# canvas où s'affichera les pions de couleurs
 plateau.grid(row=1, column=1)# positionnement du canvas
 # affichage du menu
