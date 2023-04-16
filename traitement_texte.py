@@ -1,5 +1,7 @@
 import tkinter as tk
 import random
+from json import *
+
 
 
 # variables
@@ -7,9 +9,11 @@ COULEURS = ['red', 'green', 'blue', 'yellow', 'orange', 'purple']
 taille_code = 4
 essais_max = 10
 combinaison = []
-tentative = []
+tentative_courante = []
 nbr_tentative = 0
 liste_rond = []
+liste_tentative = []
+
 
 def supprimer_ronds():
     global liste_rond
@@ -17,7 +21,7 @@ def supprimer_ronds():
         plateau.delete(rond)
     liste_rond =[]
 
-def affichage_cercle():
+def affichage_cercle(tentative):
     
     couleur_cercle = 0 #prend la couleurs de la tentative
     #variable cercle
@@ -27,7 +31,7 @@ def affichage_cercle():
     coor_vert_pt2 = 460-50*(nbr_tentative)
     for i in range (len(tentative)) :
         rond = plateau.create_oval(coor_horiz_pt1, coor_vert_pt1,\
-                            coor_horiz_pt2, coor_vert_pt2, fill=tentative[couleur_cercle])
+                            coor_horiz_pt2, coor_vert_pt2, fill= tentative[couleur_cercle])
         liste_rond.append(rond)
         coor_horiz_pt1 += 40
         coor_horiz_pt2 += 40
@@ -38,25 +42,28 @@ def verification():
     
     # ici, on a crée les conditions pour lesquelles
     # on va afficher les cercles qui donnent des indices 
-    global tentative
+    global tentative_courante
     nb_bienplace= 0
     nb_malplace= 0
     copi_combi= combinaison.copy()
+    copi_tentative = tentative_courante.copy()
     for i in range(len(combinaison)):
-        if combinaison[i]==tentative[i]:# on verifie que la couleur est bien placé
+        if combinaison[i]==tentative_courante[i]:# on verifie que la couleur est bien placé
             nb_bienplace+=1 # on compte le nombre de couleur bien placé
             copi_combi[i] = "x" # on modifie couleur bien placé pour pas qu'elle soit compté plusieurs fois
-            tentative[i] = "y"
+            tentative_courante[i] = "y"
         
     for j in range(len(combinaison)):
-        for k in range(len(tentative)):
-            if copi_combi[j] == tentative[k]:# on regarde si les couleurs sont mal placé
+        for k in range(len(tentative_courante)):
+            if copi_combi[j] == tentative_courante[k]:# on regarde si les couleurs sont mal placé
                 nb_malplace+=1 # on compte le nombre de couleur mal placé
-                tentative[k] = "y" # on modifie couleur mal placé pour pas qu'elle soit compté plusieurs fois
+                tentative_courante[k] = "y" # on modifie couleur mal placé pour pas qu'elle soit compté plusieurs fois
                 break # on sort de la boucle une fois qu'une couleur mal placé soit compté une seule fois
                       
     cercle_de_vérif(nb_bienplace, nb_malplace)
-    
+    nouvelle_tentative = { "nb_bienplace": nb_bienplace, "nb_malplace": nb_malplace, "tentative" :copi_tentative}
+    liste_tentative.append(nouvelle_tentative)
+   
     if nb_bienplace == 4 :
         afficher_message("Vous avez gagné !!")
         effacer_boutons_couleur()
@@ -65,7 +72,7 @@ def verification():
         afficher_message("Vous avez perdu :/")
         effacer_boutons_couleur()
         afficher_bouton_rejouer()
-    tentative = []
+    tentative_courante = []
     
 
 # fonction qui affiche les cercles qui donnent des indices
@@ -92,20 +99,19 @@ def cercle_de_vérif(a,b):
         liste_rond.append(rond)
         coor_horiz_pt1 += 30
         coor_horiz_pt2 += 30
-    
 
+   
 def clic_bouton(color):
     
     if len(combinaison)<taille_code:
         combinaison.append(color)
         if len(combinaison)==4:
-            
             print(combinaison)
     else:
-        tentative.append(color)
-        affichage_cercle()
+        tentative_courante.append(color)
+        affichage_cercle(tentative_courante)
     
-    if len(tentative)==taille_code:
+    if len(tentative_courante)==taille_code:
         global nbr_tentative
         nbr_tentative +=1
         verification()
@@ -132,8 +138,8 @@ def clic_rejouer():
     supprimer_ronds()
     global combinaison
     combinaison = []
-    global tentative
-    tentative = []
+    global tentative_courante
+    tentative_courante = []
     global nbr_tentative
     nbr_tentative = 0
     afficher_choix_mode()
@@ -218,7 +224,7 @@ def joueur1_utilise():
         couleur = random.choice(COULEURS)
         combinaison.append(couleur)
     print(combinaison)
-    tentative = []
+    tentative_courante = []
     nbr_tentative= 0
     effacer_choix_mode()
     afficher_boutons_couleurs()
@@ -227,6 +233,29 @@ def joueur1_utilise():
 def joueur2_utilise():
     afficher_message("Composez le code couleur (joueur 2) :")
     effacer_choix_mode()
+    afficher_boutons_couleurs()
+
+def sauvegarder():
+    print(liste_tentative)
+    fichier = open ("./mastermind.json","w")
+    dic = {"liste_tentative": liste_tentative, "combinaison": combinaison}
+    dump(dic, fichier, indent=4)
+    fichier.close()
+
+def restaurer():
+    fichier = open ("./mastermind.json","r")
+    strjson=fichier.read()
+    fichier.close()
+    dic = loads(strjson)
+    print (liste_tentative)
+    global nbr_tentative
+    nbr_tentative = 0
+    for tentative in dic["liste_tentative"]:
+        affichage_cercle(tentative["tentative"])
+        nbr_tentative+=1
+        cercle_de_vérif(tentative["nb_bienplace"], tentative["nb_malplace"])
+    global combinaison
+    combinaison = dic["combinaison"]
     afficher_boutons_couleurs()
 
 # programme principal
@@ -245,5 +274,13 @@ afficher_choix_mode()
 choix_couleurs = tk.Canvas(root, width= 100, height= 550)
 choix_couleurs.grid(row=1, column=0)
 
+canvas_fichier = tk.Canvas(root, width = 100, height= 100)
+canvas_fichier.grid(row=0, column=0)# positionnement du canvas
+
+bouton_sauvegarder = tk.Button(root, text="sauvegarder", command= sauvegarder ) 
+w_sauvegarder = canvas_fichier.create_window(50, 10, window= bouton_sauvegarder)
+
+bouton_restaurer = tk.Button(root, text="restaurer", command= restaurer ) 
+w_restaurer = canvas_fichier.create_window(50, 60, window= bouton_restaurer)
 
 root.mainloop()

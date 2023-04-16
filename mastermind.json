@@ -1,0 +1,30 @@
+{
+    "liste_tentative": [
+        {
+            "nb_bienplace": 1,
+            "nb_malplace": 0,
+            "tentative": [
+                "red",
+                "red",
+                "red",
+                "red"
+            ]
+        },
+        {
+            "nb_bienplace": 0,
+            "nb_malplace": 0,
+            "tentative": [
+                "green",
+                "green",
+                "green",
+                "green"
+            ]
+        }
+    ],
+    "combinaison": [
+        "orange",
+        "yellow",
+        "orange",
+        "red"
+    ]
+}
