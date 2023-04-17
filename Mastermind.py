@@ -6,11 +6,11 @@ from json import *
 
 # variables
 COULEURS = ['red', 'green', 'blue', 'yellow', 'orange', 'purple', 'hot pink', 'cyan']
-taille_code = 4
-essais_max = 10
-combinaison = []
+taille_code = 4 # longueur du code secret
+essais_max = 10 # nombre maximum de tentative possible pour le joueur 1 (celui qui doit trouver le code secret)
+combinaison = [] # code secret
 tentative_courante = [] # tentative
-nbr_tentative = 0
+nbr_tentative = 0 # nombre de tentative du joueur 1 
 liste_rond = [] # liste dans laquelle sera ajouté les ronds de couleurs
 liste_tentative = [] # liste dans laquelle sera ajouté les tentatives de la partie
 
@@ -287,29 +287,33 @@ def joueur1_utilise():
 # Permet à un deuxième joueur de choisir un code secret.
 # Fonction appelé par l'utilisation du bouton "2 joueur" dans l'affichage menu
 def joueur2_utilise():
-    afficher_message("Composez le code couleur (joueur 2) :", "10")
-    effacer_choix_mode()
-    afficher_boutons_couleurs()
+    afficher_message("Composez le code couleur (joueur 2) :", "10") # affiche le message avec une taille de texte à 10
+    effacer_choix_mode() # on efface le contenu du canvas dans lequel on choisit le mode
+    afficher_boutons_couleurs() # affichage des boutons de couleurs
 
 def sauvegarder():
-    fichier = open ("./mastermind.json","w")
+    # écrase le contenue du fichier json avec les nouvelles données
+    fichier = open ("./mastermind.json","w") # ouverture du fichier en mode écriture
     global dic
-    dic = {"liste_tentative": liste_tentative, "combinaison": combinaison}
-    dump(dic, fichier, indent=4)
-    fichier.close()
+    dic = {"liste_tentative": liste_tentative, "combinaison": combinaison} # dictionnaire contenant les données de la partie
+    dump(dic, fichier, indent=4) # traduit le contenu du dictionnaire en chaine de caractere dans le fichier json
+    fichier.close() # fermeture du fichier
 
 def restaurer():
-    fichier = open ("./mastermind.json","r")
-    strjson=fichier.read()
-    fichier.close()
-    dic = loads(strjson)
+    
+    # lecture du fichier json
+    fichier = open ("./mastermind.json","r") # ouverture du fichier en mode lecture
+    strjson=fichier.read() # lecture du fichier
+    fichier.close() # fermeture du fichier
+    dic = loads(strjson) # traduit la chaine en un objet python
     global nbr_tentative
     nbr_tentative = 0
+    
     # restauration de la partie
     for tentative in dic["liste_tentative"]:
-        affichage_cercle(tentative["tentative"], True)
+        affichage_cercle(tentative["tentative"], True) # affiche tous les ronds de toutes les tentatives
         nbr_tentative+=1
-        cercle_de_vérif(tentative["nb_bienplace"], tentative["nb_malplace"])
+        cercle_de_vérif(tentative["nb_bienplace"], tentative["nb_malplace"]) # affiche les ronds de vérivication corespondant aux tentatives
     global combinaison
     combinaison = dic["combinaison"]
     afficher_boutons_couleurs()
@@ -330,7 +334,7 @@ afficher_choix_mode()
 
 # canvas dans lequel il y a les boutons de couleurs
 choix_couleurs = tk.Canvas(root, width= 100, height= 550)
-choix_couleurs.grid(row=1, column=0)
+choix_couleurs.grid(row=1, column=0) 
 
 # canvas dans lequel il y a les boutons de sauvegarde, restauration, retour en arrière
 canvas_fichier = tk.Canvas(root, width = 100, height= 100)
