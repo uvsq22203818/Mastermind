@@ -14,33 +14,37 @@ nbr_tentative = 0 # nombre de tentative du joueur 1
 liste_rond = [] # liste dans laquelle sera ajouté les ronds de couleurs
 liste_tentative = [] # liste dans laquelle sera ajouté les tentatives de la partie
 
-
+# supprime les ronds de la tentative actuelle
 def supprimer_ronds_tentative_courante():
     global liste_rond
-    for i in range(len(tentative_courante)):
-        rond = liste_rond.pop()
+    for i in range(len(tentative_courante)): # on supprime les derniers ronds 
+        rond = liste_rond.pop()              # le nombre de ronds supprimés est égal au nombre d'élément dans la tentative
         plateau.delete(rond)
 
+# supprime de la tentative précedente
 def supprimer_ronds_tentative_derniere():
     global liste_rond
     dernière_tentative = liste_tentative[len(liste_tentative)-1]
-    nb_ronds= 4+dernière_tentative["nb_bienplace"]+dernière_tentative["nb_malplace"]
+    nb_ronds= 4+dernière_tentative["nb_bienplace"]+dernière_tentative["nb_malplace"] # nombre de ronds à supprimer
     for i in range(nb_ronds):
         rond = liste_rond.pop()
         plateau.delete(rond)
     
+# permet d'effacer les ronds de la dernière tentative ou de la tentative en cours
 def retour():
     global nbr_tentative
     global tentative_courante
     
+    # si la tentative en cours est vide, on supprime la tentative précédente 
     if tentative_courante == []:
         if nbr_tentative>0:
             supprimer_ronds_tentative_derniere()
             nbr_tentative-=1
-
+    
+    # sinon on supprime les ronds de la tentative en cours
     else:
         supprimer_ronds_tentative_courante()
-        tentative_courante = []  
+        tentative_courante = [] # on réinitialise la tentative en cours 
     
 #fonction qui supprime tous les ronds de couleurs
 def supprimer_ronds():
@@ -77,12 +81,15 @@ def verification():
     nb_malplace= 0
     copi_combi= combinaison.copy()
     copi_tentative = tentative_courante.copy()
+    
+    # Dans cette boucle, on compte les couleurs de la tentative qui sont bien placées
     for i in range(len(combinaison)):
         if combinaison[i]==tentative_courante[i]:# on verifie que la couleur est bien placé
             nb_bienplace+=1 # on compte le nombre de couleur bien placé
             copi_combi[i] = "x" # on modifie couleur bien placé pour pas qu'elle soit compté plusieurs fois
             tentative_courante[i] = "y"
-        
+
+    # Dans cette boucle, on compte les couleurs de la tentative qui sont mal placées
     for j in range(len(combinaison)):
         for k in range(len(tentative_courante)):
             if copi_combi[j] == tentative_courante[k]:# on regarde si les couleurs sont mal placé
@@ -92,15 +99,21 @@ def verification():
                       
     
 
-    cercle_de_vérif(nb_bienplace, nb_malplace)
+    cercle_de_vérif(nb_bienplace, nb_malplace)# on affiche les cercles / ronds de vérifications
+    # la "nouvelle_tentative" contient les données correspondant à une tentative
     nouvelle_tentative = { "nb_bienplace": nb_bienplace, "nb_malplace": nb_malplace, "tentative" :copi_tentative}
+    
+    # on ajoute la toute dernière tentative à la liste appelé "liste_tentative"
     liste_tentative.append(nouvelle_tentative)
-   
+    
+    # si la tentative est bonne, on affiche un message de victoire
     if nb_bienplace == 4 :
-        effacer_message()
+        effacer_message() # on efface le message qui était affiché
         afficher_message("Vous avez gagné !!","20")
         effacer_boutons_couleur()
         afficher_bouton_rejouer()
+    
+    # si le joueur 1 a utilisé 10 tentatives sans trouver la combinaison, on affiche un message de défaite
     elif nbr_tentative==10:
         effacer_message()
         afficher_message("Vous avez perdu :/", "20")
@@ -110,48 +123,57 @@ def verification():
     
 
 # fonction qui affiche les cercles qui donnent des indices
-def cercle_de_vérif(a,b):
+def cercle_de_vérif(bien_placés, mal_placés):
     
+    # coordonnées des ronds de vérification correspondant aux ronds bien placés
     coor_horiz_pt1 = 180
     coor_vert_pt1 = 467.5-50*(nbr_tentative-1)
     coor_horiz_pt2 = 195
     coor_vert_pt2 = 482.5-50*(nbr_tentative-1)
-    for i in range (a):
+    
+    # créé autant de petits ronds qu'il y a de ronds bien placés
+    for i in range (bien_placés):
         rond = plateau.create_oval(coor_horiz_pt1, coor_vert_pt1,\
                             coor_horiz_pt2, coor_vert_pt2, fill="red")
         liste_rond.append(rond)
         coor_horiz_pt1 += 30
         coor_horiz_pt2 += 30
-
-    coor_horiz_pt1 = 180+30*a
+    
+    # coordonnées des ronds de vérification correspondant aux ronds mal placés
+    coor_horiz_pt1 = 180+30*bien_placés
     coor_vert_pt1 = 467.5-50*(nbr_tentative-1)
-    coor_horiz_pt2 = 195+30*a
+    coor_horiz_pt2 = 195+30*bien_placés
     coor_vert_pt2 = 482.5-50*(nbr_tentative-1)
-    for i in range (b):
+    
+    # créé autant de petits ronds qu'il y a de ronds mal placés
+    for i in range (mal_placés):
         rond = plateau.create_oval(coor_horiz_pt1, coor_vert_pt1,\
                             coor_horiz_pt2, coor_vert_pt2, fill="white")
         liste_rond.append(rond)
         coor_horiz_pt1 += 30
         coor_horiz_pt2 += 30
 
-   
+# fonction qui est appelé lorsqu'on appuie sur un bouton de couleur 
 def clic_bouton(color):
     
+    # tant que la combinaison n'est pas complète, cliquer sur les boutons de couleurs complète la tentative
     if len(combinaison)<taille_code:
         combinaison.append(color)
         if len(combinaison)==4:
             effacer_message()
             afficher_message("Sélectionnez 4 couleurs\n(jusqu'à trouver le bon code)", "13")
             print(combinaison)
+    
+    # sinon, on commence une tentative et on affiche les ronds de couleur correspondant aux boutons de couleurs 
     else:
         tentative_courante.append(color)
         affichage_cercle(tentative_courante,False)
-    
     if len(tentative_courante)==taille_code:
         global nbr_tentative
         nbr_tentative +=1
         verification()
 
+# fonctions appelées par les commandes des boutons de couleurs
 def clic_rouge():
     clic_bouton("red")        
         
@@ -176,6 +198,7 @@ def clic_rose():
 def clic_cyan():
     clic_bouton("cyan")      
 
+# fonction qui réinitialise la partie lorsqu'on clic sur le bouton rejouer
 def clic_rejouer():
     supprimer_ronds()
     global combinaison
@@ -189,16 +212,18 @@ def clic_rejouer():
     effacer_message()
     
 
+# supprime le bouton rejouer
 def effacer_bouton_rejouer():
     mode_jeu.delete(w_rejouer)
         
 
-
+# affiche le bouton rejouer
 def afficher_bouton_rejouer():
     bouton_rejouer = tk.Button(root, text="rejouer", command= clic_rejouer) 
     global w_rejouer
     w_rejouer = mode_jeu.create_window(150, 85, window= bouton_rejouer)
 
+# efface les boutons de couleurs
 def effacer_boutons_couleur():
     choix_couleurs.delete(w_red)
     choix_couleurs.delete(w_green)
@@ -209,6 +234,7 @@ def effacer_boutons_couleur():
     choix_couleurs.delete(w_cyan)
     choix_couleurs.delete(w_pink)
 
+# fonction qui affiche les boutons de couleurs
 def afficher_boutons_couleurs():
     # boutons de courleurs:
     bouton_red = tk.Button(root, text="rouge", background="red", command= clic_rouge) 
@@ -243,12 +269,13 @@ def afficher_boutons_couleurs():
     global w_cyan
     w_cyan = choix_couleurs.create_window(50, 450, window= bouton_cyan)
     
-
+# on efface le texte et les boutons qu'il y a dans le canvas "mode_jeu"
 def effacer_choix_mode():
     mode_jeu.delete(text)
     mode_jeu.delete(w1)
     mode_jeu.delete(w2)
 
+# on affiche le texte ("choisissez un mode") et les boutons 1 joueur/2joueur dans le canvas "mode_jeu"
 def afficher_choix_mode():
     global text
     text = mode_jeu.create_text(150, 30, text="Choisissez un mode :")# text qui demande de choisir un mode de jeu
@@ -295,7 +322,9 @@ def sauvegarder():
     # écrase le contenue du fichier json avec les nouvelles données
     fichier = open ("./mastermind.json","w") # ouverture du fichier en mode écriture
     global dic
-    dic = {"liste_tentative": liste_tentative, "combinaison": combinaison} # dictionnaire contenant les données de la partie
+    
+    # dictionnaire contenant les données de la partie (toutes les tentatives + la combinaison)
+    dic = {"liste_tentative": liste_tentative, "combinaison": combinaison} 
     dump(dic, fichier, indent=4) # traduit le contenu du dictionnaire en chaine de caractere dans le fichier json
     fichier.close() # fermeture du fichier
 
